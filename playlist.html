@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Música - Van & Moon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="cssP.css">
+  <style>
+    /* Estilos específicos de playlist */
+    .playlist-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 140px);
+      gap: var(--gap-xl);
+    }
+
+    .playlist-header {
+      text-align: center;
+      animation: fadeInDown 0.8s ease forwards;
+    }
+
+    .playlist-header h1 {
+      color: white;
+      margin-bottom: var(--gap-sm);
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .playlist-header p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.05rem;
+    }
+
+    /* Reproductor Dynamic Island */
+    .player-container {
+      width: 100%;
+      max-width: 500px;
+      animation: slideInLeft 1s ease forwards;
+    }
+
+    .player {
+      background: var(--glass-bg);
+      backdrop-filter: blur(30px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: var(--gap-lg);
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .player::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 200px;
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(168, 85, 247, 0.1));
+      z-index: 0;
+    }
+
+    .player-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Portada de canción */
+    .cover-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 0 auto var(--gap-lg);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(236, 72, 153, 0.3);
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .cover {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #7c3aed, #a855f7, #ec4899);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 80px;
+      transition: transform 0.4s ease;
+    }
+
+    .cover.playing {
+      animation: spin 8s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Info de canción */
+    .song-info {
+      text-align: center;
+      margin-bottom: var(--gap-lg);
+    }
+
+    .song-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: var(--gap-xs);
+      background: linear-gradient(135deg, #ec4899, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .song-artist {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Barra de progreso */
+    .progress-container {
+      margin: var(--gap-lg) 0;
+    }
+
+    .progress-time {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: var(--gap-xs);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ec4899, #a855f7);
+      border-radius: 3px;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    .progress-bar:hover::after {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: white;
+      border-radius: 50%;
+      top: -3px;
+      box-shadow: 0 2px 8px rgba(236, 72, 153, 0.4);
+    }
+
+    /* Controles */
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--gap-lg);
+      margin: var(--gap-lg) 0;
+    }
+
+    .control-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(236, 72, 153, 0.2);
+      border: 2px solid rgba(236, 72, 153, 0.4);
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      transition: all var(--transition-fast);
+      border: none;
+      font-weight: 600;
+    }
+
+    .control-btn:hover {
+      background: rgba(236, 72, 153, 0.3);
+      transform: scale(1.1);
+      box-shadow: 0 8px 24px rgba(236, 72, 153, 0.3);
+    }
+
+    .control-btn:active {
+      transform: scale(0.95);
+    }
+
+    .control-btn.play-btn {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, #ec4899, #a855f7);
+      border: none;
+      font-size: 1.8rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .control-btn.play-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 20px 60px rgba(236, 72, 153, 0.4);
+    }
+
+    /* Volumen */
+    .volume-control {
+      display: flex;
+      align-items: center;
+      gap: var(--gap-sm);
+      justify-content: center;
+      margin-top: var(--gap-lg);
+      padding-top: var(--gap-lg);
+      border-top: 1px solid rgba(236, 72, 153, 0.2);
+    }
+
+    .volume-icon {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1.2rem;
+    }
+
+    .volume-slider {
+      width: 150px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      background: linear-gradient(135deg, #ec4899, #a855f7);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(236, 72, 153, 0.4);
+    }
+
+    .volume-slider::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      background: linear-gradient(135deg, #ec4899, #a855f7);
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 8px rgba(236, 72, 153, 0.4);
+    }
+
+    /* Lista de canciones */
+    .playlist {
+      width: 100%;
+      max-width: 600px;
+      display: grid;
+      gap: var(--gap-md);
+    }
+
+    .playlist-header-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: white;
+      text-align: center;
+      margin: var(--gap-lg) 0 var(--gap-md);
+    }
+
+    .song-item {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(236, 72, 153, 0.2);
+      border-radius: var(--radius-md);
+      padding: var(--gap-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: flex;
+      align-items: center;
+      gap: var(--gap-md);
+    }
+
+    .song-item:hover {
+      background: rgba(236, 72, 153, 0.15);
+      border-color: rgba(236, 72, 153, 0.4);
+      transform: translateX(8px);
+    }
+
+    .song-item.active {
+      background: rgba(236, 72, 153, 0.3);
+      border-color: rgba(236, 72, 153, 0.6);
+      box-shadow: var(--shadow-md);
+    }
+
+    .song-item-number {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 600;
+      min-width: 30px;
+    }
+
+    .song-item-info {
+      flex: 1;
+    }
+
+    .song-item-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: white;
+    }
+
+    .song-item-artist {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .song-item-play {
+      font-size: 1.2rem;
+      color: rgba(236, 72, 153, 0.6);
+      transition: all var(--transition-fast);
+    }
+
+    .song-item:hover .song-item-play {
+      color: #ec4899;
+      transform: scale(1.2);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .playlist-container {
+        padding: var(--gap-md);
+        min-height: auto;
+      }
+
+      .cover-container {
+        width: 250px;
+        height: 250px;
+      }
+
+      .cover {
+        font-size: 60px;
+      }
+
+      .song-title {
+        font-size: 1.3rem;
+      }
+
+      .control-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.1rem;
+      }
+
+      .control-btn.play-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .playlist-header h1 {
+        font-size: 1.5rem;
+      }
+
+      .cover-container {
+        width: 200px;
+        height: 200px;
+      }
+
+      .cover {
+        font-size: 50px;
+      }
+
+      .song-title {
+        font-size: 1.1rem;
+      }
+
+      .song-artist {
+        font-size: 0.9rem;
+      }
+
+      .control-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+      }
+
+      .control-btn.play-btn {
+        width: 55px;
+        height: 55px;
+        font-size: 1.3rem;
+      }
+
+      .controls {
+        gap: var(--gap-md);
+      }
+
+      .volume-slider {
+        width: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Nav incluida aquí -->
+  <div id="navbar"></div>
+
+  <div class="container">
+    <div class="playlist-header">
+      <h1>🎵 Nuestra Música</h1>
+      <p>Canciones que significan algo para nosotros</p>
+    </div>
+
+    <div class="player-container">
+      <div class="player">
+        <div class="player-content">
+          <div class="cover-container">
+            <div class="cover" id="cover">🎵</div>
+          </div>
+
+          <div class="song-info">
+            <div class="song-title" id="songTitle">Selecciona una canción</div>
+            <div class="song-artist" id="songArtist">Toca para reproducir</div>
+          </div>
+
+          <div class="progress-container">
+            <div class="progress-time">
+              <span id="currentTime">0:00</span>
+              <span id="duration">0:00</span>
+            </div>
+            <div class="progress-bar" id="progressBar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+          </div>
+
+          <div class="controls">
+            <button class="control-btn" id="prevBtn" title="Anterior">⏮️</button>
+            <button class="control-btn play-btn" id="playBtn" title="Reproducir">▶️</button>
+            <button class="control-btn" id="nextBtn" title="Siguiente">⏭️</button>
+          </div>
+
+          <div class="volume-control">
+            <span class="volume-icon">🔊</span>
+            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="70">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="playlist">
+      <div class="playlist-header-title">📋 Mi Playlist</div>
+      <div id="playlistItems"></div>
+    </div>
+  </div>
+
+  <!-- Audio element (invisible) -->
+  <audio id="audioPlayer"></audio>
+
+  <script>
+    // Array de canciones - EDITA AQUÍ CON TUS CANCIONES
+    const songs = [
+      {
+        title: "Canción 1",
+        artist: "Tu artista favorito",
+        emoji: "🎸",
+        file: "playlist/cancion1.mp3"
+      },
+      {
+        title: "Canción 2",
+        artist: "Tu artista favorito",
+        emoji: "🎹",
+        file: "playlist/cancion2.mp3"
+      },
+      {
+        title: "Canción 3",
+        artist: "Tu artista favorito",
+        emoji: "🎤",
+        file: "playlist/cancion3.mp3"
+      }
+      // Agrega más canciones aquí en el mismo formato
+    ];
+
+    let currentSongIndex = 0;
+    const audioPlayer = document.getElementById('audioPlayer');
+    const playBtn = document.getElementById('playBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+    const currentTimeEl = document.getElementById('currentTime');
+    const durationEl = document.getElementById('duration');
+    const songTitle = document.getElementById('songTitle');
+    const songArtist = document.getElementById('songArtist');
+    const cover = document.getElementById('cover');
+
+    // Cargar canción
+    function loadSong(index) {
+      currentSongIndex = index;
+      const song = songs[index];
+      audioPlayer.src = song.file;
+      songTitle.textContent = song.title;
+      songArtist.textContent = song.artist;
+      cover.textContent = song.emoji;
+      updatePlaylistUI();
+    }
+
+    // Reproducir/Pausar
+    function togglePlay() {
+      if (audioPlayer.paused) {
+        audioPlayer.play();
+        playBtn.textContent = '⏸️';
+        cover.classList.add('playing');
+      } else {
+        audioPlayer.pause();
+        playBtn.textContent = '▶️';
+        cover.classList.remove('playing');
+      }
+    }
+
+    // Siguiente canción
+    function nextSong() {
+      currentSongIndex = (currentSongIndex + 1) % songs.length;
+      loadSong(currentSongIndex);
+      audioPlayer.play();
+      playBtn.textContent = '⏸️';
+      cover.classList.add('playing');
+    }
+
+    // Canción anterior
+    function prevSong() {
+      currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+      loadSong(currentSongIndex);
+      audioPlayer.play();
+      playBtn.textContent = '⏸️';
+      cover.classList.add('playing');
+    }
+
+    // Actualizar UI de playlist
+    function updatePlaylistUI() {
+      document.querySelectorAll('.song-item').forEach((item, index) => {
+        item.classList.toggle('active', index === currentSongIndex);
+      });
+    }
+
+    // Actualizar barra de progreso
+    audioPlayer.addEventListener('timeupdate', () => {
+      const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+      progressFill.style.width = percent + '%';
+      currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+      durationEl.textContent = formatTime(audioPlayer.duration);
+    });
+
+    // Clic en barra de progreso
+    progressBar.addEventListener('click', (e) => {
+      const percent = e.offsetX / progressBar.offsetWidth;
+      audioPlayer.currentTime = percent * audioPlayer.duration;
+    });
+
+    // Volumen
+    volumeSlider.addEventListener('input', (e) => {
+      audioPlayer.volume = e.target.value / 100;
+    });
+
+    // Siguiente canción al terminar
+    audioPlayer.addEventListener('ended', nextSong);
+
+    // Botones
+    playBtn.addEventListener('click', togglePlay);
+    nextBtn.addEventListener('click', nextSong);
+    prevBtn.addEventListener('click', prevSong);
+
+    // Renderizar playlist
+    function renderPlaylist() {
+      const playlistItems = document.getElementById('playlistItems');
+      playlistItems.innerHTML = songs.map((song, index) => `
+        <div class="song-item" onclick="loadSongAndPlay(${index})">
+          <span class="song-item-number">${index + 1}</span>
+          <div class="song-item-info">
+            <div class="song-item-title">${song.title}</div>
+            <div class="song-item-artist">${song.artist}</div>
+          </div>
+          <span class="song-item-play">▶️</span>
+        </div>
+      `).join('');
+      updatePlaylistUI();
+    }
+
+    // Cargar y reproducir
+    function loadSongAndPlay(index) {
+      loadSong(index);
+      audioPlayer.play();
+      playBtn.textContent = '⏸️';
+      cover.classList.add('playing');
+    }
+
+    // Formato de tiempo
+    function formatTime(seconds) {
+      if (!seconds) return '0:00';
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    // Cargar nav
+    fetch('nav.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('navbar').innerHTML = data;
+      })
+      .catch(error => console.error('Error cargando nav:', error));
+
+    // Inicializar
+    renderPlaylist();
+    loadSong(0);
+    audioPlayer.volume = 0.7;
+  </script>
+</body>
+</html>
