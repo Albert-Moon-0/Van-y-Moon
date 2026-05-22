@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Van & Moon - Nuestro Viaje</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="cssP.css">
+  <style>
+    /* Estilos específicos del index */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      gap: var(--gap-lg);
+      padding: var(--gap-lg);
+    }
+
+    .hero-content {
+      max-width: 600px;
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .hero h1 {
+      color: white;
+      margin-bottom: var(--gap-sm);
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .subtitle {
+      font-size: 1.3rem;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: var(--gap-lg);
+      font-weight: 300;
+      letter-spacing: 1px;
+    }
+
+    /* Contador */
+    .counter-container {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: var(--gap-lg);
+      margin: var(--gap-lg) 0;
+      box-shadow: var(--shadow-lg);
+      animation: slideInLeft 1s ease forwards;
+      animation-delay: 0.2s;
+      opacity: 0;
+      transform: translateX(-50px);
+    }
+
+    .counter-label {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: var(--gap-sm);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 500;
+    }
+
+    .counter-number {
+      font-size: 4rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ec4899, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin: var(--gap-sm) 0;
+    }
+
+    .counter-text {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 300;
+    }
+
+    /* Decoración */
+    .decorative-elements {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: -1;
+      top: 0;
+      left: 0;
+    }
+
+    .dot {
+      position: absolute;
+      background: radial-gradient(circle, rgba(236, 72, 153, 0.4), transparent);
+      border-radius: 50%;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .dot1 {
+      width: 200px;
+      height: 200px;
+      top: 10%;
+      left: 5%;
+      animation-delay: 0s;
+    }
+
+    .dot2 {
+      width: 150px;
+      height: 150px;
+      bottom: 20%;
+      right: 10%;
+      animation-delay: 2s;
+    }
+
+    .dot3 {
+      width: 100px;
+      height: 100px;
+      top: 50%;
+      right: 5%;
+      animation-delay: 4s;
+    }
+
+    /* Botón iniciar */
+    .btn-start {
+      margin-top: var(--gap-lg);
+      padding: 1rem 3rem;
+      font-size: 1.1rem;
+      animation: fadeInUp 1s ease forwards;
+      animation-delay: 0.4s;
+      opacity: 0;
+    }
+
+    .btn-start:hover {
+      box-shadow: 0 30px 60px rgba(236, 72, 153, 0.4);
+    }
+
+    /* Descripción */
+    .description {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.05rem;
+      line-height: 1.8;
+      margin: var(--gap-md) 0;
+      animation: fadeInUp 1s ease forwards;
+      animation-delay: 0.6s;
+      opacity: 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero {
+        min-height: 100vh;
+        padding: var(--gap-md) var(--gap-sm);
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .subtitle {
+        font-size: 1.1rem;
+      }
+
+      .counter-number {
+        font-size: 3rem;
+      }
+
+      .dot1 {
+        width: 150px;
+        height: 150px;
+      }
+
+      .dot2 {
+        width: 100px;
+        height: 100px;
+      }
+
+      .dot3 {
+        width: 80px;
+        height: 80px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 {
+        font-size: 1.5rem;
+      }
+
+      .subtitle {
+        font-size: 1rem;
+      }
+
+      .counter-number {
+        font-size: 2.5rem;
+      }
+
+      .counter-container {
+        padding: var(--gap-md);
+      }
+
+      .btn-start {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="decorative-elements">
+    <div class="dot dot1"></div>
+    <div class="dot dot2"></div>
+    <div class="dot dot3"></div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-content">
+      <h1>Van & Moon</h1>
+      <p class="subtitle">Nuestro Viaje Juntos</p>
+
+      <div class="counter-container">
+        <p class="counter-label">Llevamos juntos</p>
+        <div class="counter-number" id="days">0</div>
+        <p class="counter-text">días de amor</p>
+      </div>
+
+      <p class="description">
+        Una página hecha con todo mi amor para ti. Aquí guardamos los momentos, 
+        las canciones, los lugares y todas esas cosas que hacen especial lo nuestro.
+      </p>
+
+      <button class="btn btn-primary btn-start" onclick="window.location.href='cartas.html'">
+        ✨ Iniciar
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Calcular días desde una fecha específica
+    function calculateDays() {
+      // Cambia esta fecha a la de su primer día juntos
+      const startDate = new Date('2023-06-15'); // Ejemplo: 15 de junio de 2023
+      const today = new Date();
+      
+      const timeDiff = today - startDate;
+      const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+      
+      document.getElementById('days').textContent = daysDiff;
+    }
+
+    // Ejecutar al cargar
+    window.addEventListener('load', calculateDays);
+
+    // Recalcular cada medianoche
+    setInterval(calculateDays, 1000 * 60 * 60 * 24);
+  </script>
+</body>
+</html> 

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cartas - Van & Moon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="cssP.css">
+  <style>
+    /* Estilos específicos de cartas */
+    .cartas-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: var(--gap-lg);
+      padding-bottom: 150px;
+      gap: var(--gap-lg);
+    }
+
+    .cartas-header {
+      text-align: center;
+      animation: fadeInDown 0.8s ease forwards;
+      margin-bottom: var(--gap-lg);
+    }
+
+    .cartas-header h1 {
+      color: white;
+      margin-bottom: var(--gap-sm);
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .cartas-header p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.05rem;
+    }
+
+    /* Contenedor de cartas */
+    .cartas-wrapper {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--gap-lg);
+      width: 100%;
+      max-width: 700px;
+    }
+
+    /* Carta individual */
+    .carta {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: var(--gap-lg);
+      cursor: pointer;
+      transition: all var(--transition-smooth);
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      transform: scale(0.95);
+      animation: fadeInUp var(--transition-smooth) ease forwards;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Animación con delay para cada carta */
+    .carta:nth-child(1) { animation-delay: 0.1s; }
+    .carta:nth-child(2) { animation-delay: 0.2s; }
+    .carta:nth-child(3) { animation-delay: 0.3s; }
+    .carta:nth-child(4) { animation-delay: 0.4s; }
+    .carta:nth-child(5) { animation-delay: 0.5s; }
+
+    .carta:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-8px) scale(1);
+      border-color: rgba(236, 72, 153, 0.4);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .carta.active {
+      background: rgba(236, 72, 153, 0.2);
+      border-color: rgba(236, 72, 153, 0.5);
+    }
+
+    /* Encabezado de carta */
+    .carta-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--gap-md);
+    }
+
+    .carta-numero {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 500;
+    }
+
+    .carta-icono {
+      font-size: 1.5rem;
+      transition: transform var(--transition-fast);
+    }
+
+    .carta:hover .carta-icono {
+      transform: scale(1.2);
+    }
+
+    .carta.active .carta-icono {
+      transform: rotate(180deg);
+    }
+
+    /* Título de carta */
+    .carta-titulo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: var(--gap-sm);
+      background: linear-gradient(135deg, #ec4899, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Contenido de carta (oculto por defecto) */
+    .carta-contenido {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height var(--transition-smooth);
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.8;
+    }
+
+    .carta.active .carta-contenido {
+      max-height: 500px;
+      margin-top: var(--gap-md);
+      padding-top: var(--gap-md);
+      border-top: 1px solid rgba(236, 72, 153, 0.2);
+    }
+
+    /* Subtítulo cuando está cerrada */
+    .carta-preview {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.95rem;
+      font-style: italic;
+    }
+
+    .carta.active .carta-preview {
+      display: none;
+    }
+
+    /* Navegación inferior */
+    nav {
+      padding: var(--gap-md);
+    }
+
+    .nav-container {
+      max-width: 700px;
+      gap: var(--gap-md);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .cartas-container {
+        padding: var(--gap-md);
+        padding-bottom: 150px;
+      }
+
+      .cartas-header h1 {
+        font-size: 1.8rem;
+      }
+
+      .carta {
+        padding: var(--gap-md);
+        min-height: 120px;
+      }
+
+      .carta-titulo {
+        font-size: 1.2rem;
+      }
+
+      .nav-container {
+        gap: var(--gap-sm);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .cartas-container {
+        padding: var(--gap-sm);
+        padding-bottom: 150px;
+      }
+
+      .cartas-header h1 {
+        font-size: 1.5rem;
+      }
+
+      .cartas-header p {
+        font-size: 0.95rem;
+      }
+
+      .carta {
+        padding: var(--gap-md);
+      }
+
+      .carta-titulo {
+        font-size: 1.1rem;
+      }
+
+      .carta-numero {
+        font-size: 0.8rem;
+      }
+
+      .nav-container {
+        gap: var(--gap-xs);
+        flex-wrap: wrap;
+      }
+
+      .nav-link {
+        padding: var(--gap-xs) var(--gap-sm);
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="cartas-header">
+      <h1>💌 Cartas para Ti</h1>
+      <p>Cosas que quería decirte</p>
+    </div>
+
+    <div class="cartas-wrapper">
+      <!-- Carta 1 -->
+      <div class="carta" onclick="toggleCarta(this)">
+        <div class="carta-header">
+          <span class="carta-numero">Carta 01</span>
+          <span class="carta-icono">💕</span>
+        </div>
+        <h3 class="carta-titulo">Por qué eres especial</h3>
+        <p class="carta-preview">Haz clic para leer...</p>
+        <div class="carta-contenido">
+          <p>
+            No es fácil explicar todo lo que sientes por alguien con palabras, 
+            pero lo voy a intentar. Eres especial no porque seas perfecta, 
+            sino porque en ti encuentro tranquilidad, risa, comprensión y amor genuino.
+            <br><br>
+            Lo que más me gusta de ti es tu forma de ver el mundo, 
+            cómo luchas por lo que crees, y esa manera tuya de hacer sentir a la gente 
+            que importan. Contigo, siento que puedo ser yo mismo.
+          </p>
+        </div>
+      </div>
+
+      <!-- Carta 2 -->
+      <div class="carta" onclick="toggleCarta(this)">
+        <div class="carta-header">
+          <span class="carta-numero">Carta 02</span>
+          <span class="carta-icono">🌙</span>
+        </div>
+        <h3 class="carta-titulo">Mi día favorito contigo</h3>
+        <p class="carta-preview">Haz clic para leer...</p>
+        <div class="carta-contenido">
+          <p>
+            No es un día específico, es esa sensación de venir a casa y que tú estés ahí. 
+            Es despertarme sin presión de hacer nada en especial, solo estar juntos, 
+            reír de cosas tontas, intentar cocinar algo que termina siendo un desastre, 
+            y que aún así sea perfecto porque estoy contigo.
+            <br><br>
+            Son esos momentos pequeños los que realmente importan. 
+            Un café, una película, conversaciones a las 2 de la mañana... 
+            eso es lo que hace especial cada día.
+          </p>
+        </div>
+      </div>
+
+      <!-- Carta 3 -->
+      <div class="carta" onclick="toggleCarta(this)">
+        <div class="carta-header">
+          <span class="carta-numero">Carta 03</span>
+          <span class="carta-icono">✨</span>
+        </div>
+        <h3 class="carta-titulo">Cosas que admiro de ti</h3>
+        <p class="carta-preview">Haz clic para leer...</p>
+        <div class="carta-contenido">
+          <p>
+            Tu fuerza. La manera en que enfrentas los problemas sin rendirte, 
+            sin importar cuántas veces caigas. Tu generosidad al dar amor sin esperar 
+            nada a cambio. Tu sentido del humor que me hace reír en los momentos 
+            más oscuros.
+            <br><br>
+            Admiro cómo te importan las personas, cómo das lo mejor de ti 
+            en todo lo que haces. Eres inspiración, aunque no lo veas así.
+          </p>
+        </div>
+      </div>
+
+      <!-- Carta 4 -->
+      <div class="carta" onclick="toggleCarta(this)">
+        <div class="carta-header">
+          <span class="carta-numero">Carta 04</span>
+          <span class="carta-icono">🎵</span>
+        </div>
+        <h3 class="carta-titulo">Promesas para nuestro futuro</h3>
+        <p class="carta-preview">Haz clic para leer...</p>
+        <div class="carta-contenido">
+          <p>
+            Te prometo estar ahí en los buenos y malos momentos. 
+            Prometo hacer el esfuerzo de comunicar lo que siento, 
+            incluso cuando sea difícil. Prometo celebrar tus logros como propios 
+            y apoyarte cuando dudes.
+            <br><br>
+            Prometo crear más momentos como estos, seguir haciendo cosas 
+            que te hagan feliz, y nunca dejar de demostrarte lo importante que eres para mí.
+            Contigo quiero construir una vida llena de amor y risas.
+          </p>
+        </div>
+      </div>
+
+      <!-- Carta 5 -->
+      <div class="carta" onclick="toggleCarta(this)">
+        <div class="carta-header">
+          <span class="carta-numero">Carta 05</span>
+          <span class="carta-icono">❤️</span>
+        </div>
+        <h3 class="carta-titulo">Te quiero porque...</h3>
+        <p class="carta-preview">Haz clic para leer...</p>
+        <div class="carta-contenido">
+          <p>
+            Te quiero porque no tengo que fingir contigo. Porque entiendes mis silencios 
+            y celebras mis victorias. Porque eres mi lugar seguro, mi paz en la tormenta.
+            <br><br>
+            Te quiero porque cuando estoy contigo, siento que puedo ser mi mejor versión. 
+            Porque sonríes como si el mundo fuera hermoso, y contagias esa esperanza. 
+            Te quiero simplemente porque eres tú, y tú eres suficiente. Más que suficiente.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navegación -->
+  <nav>
+    <div class="nav-container">
+      <a href="index.html" class="nav-link">🏠 Inicio</a>
+      <a href="cartas.html" class="nav-link active">💌 Cartas</a>
+      <a href="quiz.html" class="nav-link">❓ Quiz</a>
+      <a href="playlist.html" class="nav-link">🎵 Música</a>
+    </div>
+  </nav>
+
+  <script>
+    // Función para abrir/cerrar cartas
+    function toggleCarta(element) {
+      // Cerrar otras cartas
+      document.querySelectorAll('.carta').forEach(carta => {
+        if (carta !== element) {
+          carta.classList.remove('active');
+        }
+      });
+
+      // Toggle esta carta
+      element.classList.toggle('active');
+    }
+
+    // Script para marcar nav activo
+    function markActiveNav() {
+      const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+      document.querySelectorAll('.nav-link').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPage) {
+          link.classList.add('active');
+        }
+      });
+    }
+
+    window.addEventListener('load', markActiveNav);
+  </script>
+</body>
+</html>
