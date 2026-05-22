@@ -15,9 +15,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      padding: var(--gap-lg);
-      padding-bottom: 150px;
+      min-height: calc(100vh - 120px);
       gap: var(--gap-lg);
     }
 
@@ -57,13 +55,8 @@
       cursor: pointer;
       transition: all var(--transition-smooth);
       box-shadow: var(--shadow-md);
-      opacity: 0;
-      transform: scale(0.95);
       animation: fadeInUp var(--transition-smooth) ease forwards;
-      min-height: 150px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+      display: block;
     }
 
     /* Animación con delay para cada carta */
@@ -75,7 +68,7 @@
 
     .carta:hover {
       background: rgba(255, 255, 255, 0.15);
-      transform: translateY(-8px) scale(1);
+      transform: translateY(-8px);
       border-color: rgba(236, 72, 153, 0.4);
       box-shadow: var(--shadow-lg);
     }
@@ -102,8 +95,9 @@
     }
 
     .carta-icono {
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       transition: transform var(--transition-fast);
+      display: inline-block;
     }
 
     .carta:hover .carta-icono {
@@ -124,50 +118,40 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      display: block;
     }
 
-    /* Contenido de carta (oculto por defecto) */
-    .carta-contenido {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height var(--transition-smooth);
-      color: rgba(255, 255, 255, 0.9);
-      line-height: 1.8;
-    }
-
-    .carta.active .carta-contenido {
-      max-height: 500px;
-      margin-top: var(--gap-md);
-      padding-top: var(--gap-md);
-      border-top: 1px solid rgba(236, 72, 153, 0.2);
-    }
-
-    /* Subtítulo cuando está cerrada */
+    /* Preview de carta */
     .carta-preview {
       color: rgba(255, 255, 255, 0.6);
       font-size: 0.95rem;
       font-style: italic;
+      display: block;
     }
 
     .carta.active .carta-preview {
       display: none;
     }
 
-    /* Navegación inferior */
-    nav {
-      padding: var(--gap-md);
+    /* Contenido de carta (oculto por defecto) */
+    .carta-contenido {
+      display: none;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.8;
+      margin-top: var(--gap-md);
+      padding-top: var(--gap-md);
+      border-top: 1px solid rgba(236, 72, 153, 0.2);
+      animation: fadeInUp var(--transition-smooth);
     }
 
-    .nav-container {
-      max-width: 700px;
-      gap: var(--gap-md);
+    .carta.active .carta-contenido {
+      display: block;
     }
 
     /* Responsive */
     @media (max-width: 768px) {
       .cartas-container {
-        padding: var(--gap-md);
-        padding-bottom: 150px;
+        min-height: calc(100vh - 100px);
       }
 
       .cartas-header h1 {
@@ -176,24 +160,18 @@
 
       .carta {
         padding: var(--gap-md);
-        min-height: 120px;
       }
 
       .carta-titulo {
         font-size: 1.2rem;
       }
 
-      .nav-container {
-        gap: var(--gap-sm);
+      .nav-link {
+        font-size: 1rem;
       }
     }
 
     @media (max-width: 480px) {
-      .cartas-container {
-        padding: var(--gap-sm);
-        padding-bottom: 150px;
-      }
-
       .cartas-header h1 {
         font-size: 1.5rem;
       }
@@ -214,19 +192,16 @@
         font-size: 0.8rem;
       }
 
-      .nav-container {
-        gap: var(--gap-xs);
-        flex-wrap: wrap;
-      }
-
       .nav-link {
-        padding: var(--gap-xs) var(--gap-sm);
-        font-size: 0.8rem;
+        font-size: 0.95rem;
       }
     }
   </style>
 </head>
 <body>
+  <!-- Nav incluida aquí -->
+  <div id="navbar"></div>
+
   <div class="container">
     <div class="cartas-header">
       <h1>💌 Cartas para Ti</h1>
@@ -342,16 +317,6 @@
     </div>
   </div>
 
-  <!-- Navegación -->
-  <nav>
-    <div class="nav-container">
-      <a href="index.html" class="nav-link">🏠 Inicio</a>
-      <a href="cartas.html" class="nav-link active">💌 Cartas</a>
-      <a href="quiz.html" class="nav-link">❓ Quiz</a>
-      <a href="playlist.html" class="nav-link">🎵 Música</a>
-    </div>
-  </nav>
-
   <script>
     // Función para abrir/cerrar cartas
     function toggleCarta(element) {
@@ -366,18 +331,13 @@
       element.classList.toggle('active');
     }
 
-    // Script para marcar nav activo
-    function markActiveNav() {
-      const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-      document.querySelectorAll('.nav-link').forEach(link => {
-        const href = link.getAttribute('href');
-        if (href === currentPage) {
-          link.classList.add('active');
-        }
-      });
-    }
-
-    window.addEventListener('load', markActiveNav);
+    // Cargar la nav desde nav.html
+    fetch('nav.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('navbar').innerHTML = data;
+      })
+      .catch(error => console.error('Error cargando nav:', error));
   </script>
 </body>
 </html>

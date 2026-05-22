@@ -1,0 +1,32 @@
+<nav>
+  <div class="nav-container">
+    <a href="index.html" class="nav-link" id="nav-inicio">🏠 Inicio</a>
+    <a href="cartas.html" class="nav-link" id="nav-cartas">💌 Cartas</a>
+    <a href="quiz.html" class="nav-link" id="nav-quiz">❓ Quiz</a>
+    <a href="playlist.html" class="nav-link" id="nav-playlist">🎵 Música</a>
+  </div>
+</nav>
+
+<script>
+  // Script para marcar nav activo
+  function markActiveNav() {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    
+    // Limpiar activos
+    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+    
+    // Marcar actual como activo
+    if (currentPage === 'index.html' || currentPage === '') {
+      document.getElementById('nav-inicio')?.classList.add('active');
+    } else if (currentPage === 'cartas.html') {
+      document.getElementById('nav-cartas')?.classList.add('active');
+    } else if (currentPage === 'quiz.html') {
+      document.getElementById('nav-quiz')?.classList.add('active');
+    } else if (currentPage === 'playlist.html') {
+      document.getElementById('nav-playlist')?.classList.add('active');
+    }
+  }
+
+  // Ejecutar cuando se carga
+  markActiveNav();
+</script>
