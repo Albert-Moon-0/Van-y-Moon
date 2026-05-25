@@ -79,6 +79,10 @@
       overflow: hidden;
       box-shadow: 0 20px 60px rgba(236, 72, 153, 0.3);
       animation: float 4s ease-in-out infinite;
+      background: linear-gradient(135deg, #7c3aed, #a855f7, #ec4899);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .cover {
@@ -90,6 +94,12 @@
       justify-content: center;
       font-size: 80px;
       transition: transform 0.4s ease;
+    }
+
+    .cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .cover.playing {
@@ -125,48 +135,6 @@
     .song-artist {
       font-size: 1rem;
       color: rgba(255, 255, 255, 0.7);
-    }
-
-    /* Barra de progreso */
-    .progress-container {
-      margin: var(--gap-lg) 0;
-    }
-
-    .progress-time {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      color: rgba(255, 255, 255, 0.6);
-      margin-bottom: var(--gap-xs);
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 3px;
-      cursor: pointer;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #ec4899, #a855f7);
-      border-radius: 3px;
-      width: 0%;
-      transition: width 0.1s linear;
-    }
-
-    .progress-bar:hover::after {
-      content: '';
-      position: absolute;
-      width: 12px;
-      height: 12px;
-      background: white;
-      border-radius: 50%;
-      top: -3px;
-      box-shadow: 0 2px 8px rgba(236, 72, 153, 0.4);
     }
 
     /* Controles */
@@ -340,6 +308,11 @@
       transform: scale(1.2);
     }
 
+    /* SoundCloud iframe oculto */
+    .soundcloud-hidden {
+      display: none;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .playlist-container {
@@ -439,16 +412,6 @@
             <div class="song-artist" id="songArtist">Toca para reproducir</div>
           </div>
 
-          <div class="progress-container">
-            <div class="progress-time">
-              <span id="currentTime">0:00</span>
-              <span id="duration">0:00</span>
-            </div>
-            <div class="progress-bar" id="progressBar">
-              <div class="progress-fill" id="progressFill"></div>
-            </div>
-          </div>
-
           <div class="controls">
             <button class="control-btn" id="prevBtn" title="Anterior">⏮️</button>
             <button class="control-btn play-btn" id="playBtn" title="Reproducir">▶️</button>
@@ -469,87 +432,138 @@
     </div>
   </div>
 
-  <!-- Audio element (invisible) -->
-  <audio id="audioPlayer"></audio>
+  <!-- SoundCloud iframes ocultos (para reproducción real) -->
+  <div id="soundcloud-container" class="soundcloud-hidden"></div>
+
+  <!-- Script de SoundCloud -->
+  <script async src="https://soundcloud.com/player/api.js#onload=onSoundCloudScriptLoad"></script>
 
   <script>
-    // Array de canciones - EDITA AQUÍ CON TUS CANCIONES
+    // Array de canciones de SoundCloud
+    // Reemplaza con tus URLs reales de SoundCloud
     const songs = [
       {
-        title: "Canción 1",
-        artist: "Tu artista favorito",
+        title: "Más Grandes",
+        artist: "La Gusana Ciega",
         emoji: "🎸",
-        file: "playlist/cancion1.mp3"
+        soundcloudUrl: "https://soundcloud.com/la-gusana-ciega/mas-grandes",
+        artwork: "https://api.soundcloud.com/tracks/318449795/artwork"
       },
       {
         title: "Canción 2",
         artist: "Tu artista favorito",
         emoji: "🎹",
-        file: "playlist/cancion2.mp3"
+        soundcloudUrl: "https://soundcloud.com/usuario/cancion2",
+        artwork: "https://via.placeholder.com/300?text=Cancion+2"
       },
       {
         title: "Canción 3",
         artist: "Tu artista favorito",
         emoji: "🎤",
-        file: "playlist/cancion3.mp3"
+        soundcloudUrl: "https://soundcloud.com/usuario/cancion3",
+        artwork: "https://via.placeholder.com/300?text=Cancion+3"
       }
-      // Agrega más canciones aquí en el mismo formato
     ];
 
     let currentSongIndex = 0;
-    const audioPlayer = document.getElementById('audioPlayer');
-    const playBtn = document.getElementById('playBtn');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const volumeSlider = document.getElementById('volumeSlider');
-    const progressBar = document.getElementById('progressBar');
-    const progressFill = document.getElementById('progressFill');
-    const currentTimeEl = document.getElementById('currentTime');
-    const durationEl = document.getElementById('duration');
-    const songTitle = document.getElementById('songTitle');
-    const songArtist = document.getElementById('songArtist');
-    const cover = document.getElementById('cover');
+    let SC = null;
+    let currentWidget = null;
+
+    // Callback cuando SoundCloud se carga
+    window.onSoundCloudScriptLoad = function() {
+      SC = window.SC;
+      SC.Widget.Events.ready = function(e) {
+        console.log('SoundCloud ready');
+      };
+      initializePlayer();
+    };
+
+    // Inicializar player
+    function initializePlayer() {
+      renderPlaylist();
+      loadSong(0);
+    }
 
     // Cargar canción
     function loadSong(index) {
       currentSongIndex = index;
       const song = songs[index];
-      audioPlayer.src = song.file;
+      
       songTitle.textContent = song.title;
       songArtist.textContent = song.artist;
       cover.textContent = song.emoji;
+
+      // Crear iframe de SoundCloud
+      const iframeHTML = `
+        <iframe 
+          id="sc-widget-${index}"
+          width="100%" 
+          height="166" 
+          scrolling="no" 
+          frameborder="no" 
+          allow="autoplay; encrypted-media"
+          src="https://w.soundcloud.com/player/?url=${encodeURIComponent(song.soundcloudUrl)}&color=%23a855f7&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false"
+        ></iframe>
+      `;
+
+      const container = document.getElementById('soundcloud-container');
+      container.innerHTML = iframeHTML;
+
+      // Recargar los widgets de SoundCloud
+      if (window.SC && window.SC.Widget) {
+        window.SC.Widget.load();
+      }
+
       updatePlaylistUI();
     }
 
-    // Reproducir/Pausar
+    // Reproducir
+    function playCurrentSong() {
+      const widget = window.SC.Widget(document.querySelector(`#sc-widget-${currentSongIndex}`));
+      widget.bind(window.SC.Widget.Events.READY, function() {
+        widget.play();
+      });
+      playBtn.textContent = '⏸️';
+      cover.classList.add('playing');
+    }
+
+    // Pausar
+    function pauseCurrentSong() {
+      const widget = window.SC.Widget(document.querySelector(`#sc-widget-${currentSongIndex}`));
+      widget.bind(window.SC.Widget.Events.READY, function() {
+        widget.pause();
+      });
+      playBtn.textContent = '▶️';
+      cover.classList.remove('playing');
+    }
+
+    // Toggle play/pause
     function togglePlay() {
-      if (audioPlayer.paused) {
-        audioPlayer.play();
-        playBtn.textContent = '⏸️';
-        cover.classList.add('playing');
-      } else {
-        audioPlayer.pause();
-        playBtn.textContent = '▶️';
-        cover.classList.remove('playing');
-      }
+      const widget = window.SC.Widget(document.querySelector(`#sc-widget-${currentSongIndex}`));
+      widget.bind(window.SC.Widget.Events.READY, function() {
+        widget.toggle();
+        if (playBtn.textContent === '▶️') {
+          playBtn.textContent = '⏸️';
+          cover.classList.add('playing');
+        } else {
+          playBtn.textContent = '▶️';
+          cover.classList.remove('playing');
+        }
+      });
     }
 
     // Siguiente canción
     function nextSong() {
       currentSongIndex = (currentSongIndex + 1) % songs.length;
       loadSong(currentSongIndex);
-      audioPlayer.play();
-      playBtn.textContent = '⏸️';
-      cover.classList.add('playing');
+      playCurrentSong();
     }
 
     // Canción anterior
     function prevSong() {
       currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
       loadSong(currentSongIndex);
-      audioPlayer.play();
-      playBtn.textContent = '⏸️';
-      cover.classList.add('playing');
+      playCurrentSong();
     }
 
     // Actualizar UI de playlist
@@ -558,33 +572,6 @@
         item.classList.toggle('active', index === currentSongIndex);
       });
     }
-
-    // Actualizar barra de progreso
-    audioPlayer.addEventListener('timeupdate', () => {
-      const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-      progressFill.style.width = percent + '%';
-      currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
-      durationEl.textContent = formatTime(audioPlayer.duration);
-    });
-
-    // Clic en barra de progreso
-    progressBar.addEventListener('click', (e) => {
-      const percent = e.offsetX / progressBar.offsetWidth;
-      audioPlayer.currentTime = percent * audioPlayer.duration;
-    });
-
-    // Volumen
-    volumeSlider.addEventListener('input', (e) => {
-      audioPlayer.volume = e.target.value / 100;
-    });
-
-    // Siguiente canción al terminar
-    audioPlayer.addEventListener('ended', nextSong);
-
-    // Botones
-    playBtn.addEventListener('click', togglePlay);
-    nextBtn.addEventListener('click', nextSong);
-    prevBtn.addEventListener('click', prevSong);
 
     // Renderizar playlist
     function renderPlaylist() {
@@ -599,24 +586,33 @@
           <span class="song-item-play">▶️</span>
         </div>
       `).join('');
-      updatePlaylistUI();
     }
 
     // Cargar y reproducir
     function loadSongAndPlay(index) {
       loadSong(index);
-      audioPlayer.play();
-      playBtn.textContent = '⏸️';
-      cover.classList.add('playing');
+      setTimeout(() => playCurrentSong(), 100);
     }
 
-    // Formato de tiempo
-    function formatTime(seconds) {
-      if (!seconds) return '0:00';
-      const mins = Math.floor(seconds / 60);
-      const secs = Math.floor(seconds % 60);
-      return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-    }
+    // Botones
+    const playBtn = document.getElementById('playBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const songTitle = document.getElementById('songTitle');
+    const songArtist = document.getElementById('songArtist');
+    const cover = document.getElementById('cover');
+    const volumeSlider = document.getElementById('volumeSlider');
+
+    playBtn.addEventListener('click', togglePlay);
+    nextBtn.addEventListener('click', nextSong);
+    prevBtn.addEventListener('click', prevSong);
+
+    volumeSlider.addEventListener('input', (e) => {
+      const widget = window.SC.Widget(document.querySelector(`#sc-widget-${currentSongIndex}`));
+      if (widget) {
+        widget.setVolume(e.target.value);
+      }
+    });
 
     // Cargar nav
     fetch('nav.html')
@@ -626,10 +622,8 @@
       })
       .catch(error => console.error('Error cargando nav:', error));
 
-    // Inicializar
-    renderPlaylist();
-    loadSong(0);
-    audioPlayer.volume = 0.7;
+    // Esperar a que SoundCloud se cargue
+    setTimeout(initializePlayer, 1000);
   </script>
 </body>
 </html>
