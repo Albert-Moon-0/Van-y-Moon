@@ -35,7 +35,7 @@
       font-size: 1.05rem;
     }
 
-    /* Reproductor elegante */
+    /* Reproductor */
     .player-container {
       width: 100%;
       max-width: 500px;
@@ -127,59 +127,22 @@
       color: rgba(255, 255, 255, 0.7);
     }
 
-    /* Controles - Diseño minimalista elegante */
-    .controls {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 2rem;
+    /* SoundCloud iframe - Personalizar */
+    .soundcloud-wrapper {
       margin: var(--gap-lg) 0;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(236, 72, 153, 0.2);
     }
 
-    .control-btn {
-      background: none;
-      border: none;
-      color: rgba(255, 255, 255, 0.7);
-      cursor: pointer;
-      font-size: 1.8rem;
-      transition: all var(--transition-fast);
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .soundcloud-wrapper iframe {
+      border-radius: var(--radius-md);
+      display: block !important;
     }
 
-    .control-btn:hover {
-      color: #ec4899;
-      transform: scale(1.2);
-    }
-
-    .control-btn:active {
-      transform: scale(0.95);
-    }
-
-    .control-btn.play-btn {
-      font-size: 2.5rem;
-      color: #ec4899;
-      filter: drop-shadow(0 0 20px rgba(236, 72, 153, 0.4));
-    }
-
-    .control-btn.play-btn:hover {
-      color: #a855f7;
-      filter: drop-shadow(0 0 30px rgba(168, 85, 247, 0.5));
-    }
-
-    /* SoundCloud iframe oculto */
-    .soundcloud-hidden {
-      display: none;
-      height: 0;
-      width: 0;
-      border: none;
-    }
-
-    /* Contenedor de iframes (oculto) */
-    #soundcloud-container {
-      display: none;
+    /* Ocultar el link feo de SoundCloud */
+    .soundcloud-wrapper + div {
+      display: none !important;
     }
 
     /* Lista de canciones */
@@ -256,6 +219,28 @@
       transform: scale(1.2);
     }
 
+    /* Controles minimales */
+    .controls {
+      text-align: center;
+      margin-top: var(--gap-md);
+    }
+
+    .control-btn {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      font-size: 1.5rem;
+      transition: all var(--transition-fast);
+      padding: var(--gap-sm);
+      margin: 0 var(--gap-sm);
+    }
+
+    .control-btn:hover {
+      color: #ec4899;
+      transform: scale(1.2);
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .playlist-container {
@@ -273,14 +258,6 @@
 
       .song-title {
         font-size: 1.3rem;
-      }
-
-      .controls {
-        gap: 1.5rem;
-      }
-
-      .control-btn.play-btn {
-        font-size: 2rem;
       }
     }
 
@@ -302,20 +279,10 @@
         font-size: 1.1rem;
       }
 
-      .song-artist {
-        font-size: 0.9rem;
-      }
-
-      .controls {
-        gap: 1rem;
-      }
-
       .control-btn {
-        font-size: 1.5rem;
-      }
-
-      .control-btn.play-btn {
-        font-size: 1.8rem;
+        font-size: 1.2rem;
+        padding: var(--gap-xs);
+        margin: 0 var(--gap-xs);
       }
     }
   </style>
@@ -343,9 +310,12 @@
               <div class="song-artist" id="songArtist">Toca para reproducir</div>
             </div>
 
+            <!-- Aquí van los iframes de SoundCloud -->
+            <div id="soundcloud-player" class="soundcloud-wrapper"></div>
+
             <div class="controls">
               <button class="control-btn" id="prevBtn" title="Anterior">⏮</button>
-              <button class="control-btn play-btn" id="playBtn" title="Reproducir">▶</button>
+              <button class="control-btn" id="playBtn" title="Reproducir">▶</button>
               <button class="control-btn" id="nextBtn" title="Siguiente">⏭</button>
             </div>
           </div>
@@ -358,25 +328,21 @@
       </div>
     </div>
   </div>
-  <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay; encrypted-media" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A1069269745&color=%23510b0c&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe><div style="font-size: 10px; color: #cccccc;line-break: anywhere;word-break: normal;overflow: hidden;white-space: nowrap;text-overflow: ellipsis; font-family: Interstate,Lucida Grande,Lucida Sans Unicode,Lucida Sans,Garuda,Verdana,Tahoma,sans-serif;font-weight: 100;"><a href="https://soundcloud.com/themarias" title="The Marías" target="_blank" style="color: #cccccc; text-decoration: none;">The Marías</a> · <a href="https://soundcloud.com/themarias/little-by-little" title="Little by Little" target="_blank" style="color: #cccccc; text-decoration: none;">Little by Little</a></div>
-
-  <!-- SoundCloud iframes ocultos (para reproducción real) -->
-  <div id="soundcloud-container"></div>
 
   <script>
-    // Array de canciones de SoundCloud
+    // Array de canciones con iframes de SoundCloud tal cual vienen
     const songs = [
       {
         title: "Little by Little",
         artist: "The Marías",
         emoji: "💕",
-        iframeHTML: `<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay; encrypted-media" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1069269745&color=%23a855f7&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false"></iframe>`
+        iframeHTML: `<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay; encrypted-media" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A1069269745&color=%23a855f7&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false"></iframe>`
       },
       {
         title: "Más Grandes",
         artist: "La Gusana Ciega",
         emoji: "🎸",
-        iframeHTML: `<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay; encrypted-media" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/318449795&color=%23a855f7&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false"></iframe>`
+        iframeHTML: `<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay; encrypted-media" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A318449795&color=%23a855f7&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false"></iframe>`
       },
       {
         title: "Canción 3",
@@ -387,15 +353,14 @@
     ];
 
     let currentSongIndex = 0;
-    let isPlaying = false;
 
-    const playBtn = document.getElementById('playBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const prevBtn = document.getElementById('prevBtn');
     const songTitle = document.getElementById('songTitle');
     const songArtist = document.getElementById('songArtist');
     const cover = document.getElementById('cover');
-    const soundcloudContainer = document.getElementById('soundcloud-container');
+    const soundcloudPlayer = document.getElementById('soundcloud-player');
+    const playBtn = document.getElementById('playBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const prevBtn = document.getElementById('prevBtn');
 
     // Cargar canción
     function loadSong(index) {
@@ -405,85 +370,43 @@
       songTitle.textContent = song.title;
       songArtist.textContent = song.artist;
       cover.textContent = song.emoji;
+      cover.classList.remove('playing');
 
-      // Cargar el iframe
-      soundcloudContainer.innerHTML = song.iframeHTML;
-      
-      // Recargar los widgets de SoundCloud
-      if (window.SC && window.SC.Widget) {
-        window.SC.Widget.load();
-      }
+      // Cargar el iframe de SoundCloud
+      soundcloudPlayer.innerHTML = song.iframeHTML;
 
       updatePlaylistUI();
-      isPlaying = false;
-      playBtn.textContent = '▶';
-      cover.classList.remove('playing');
     }
 
-    // Reproducir/Pausar
-    function togglePlay() {
-      const widget = window.SC.Widget(soundcloudContainer.querySelector('iframe'));
-      
-      if (!widget) {
-        console.error('Widget no encontrado');
-        return;
-      }
-
-      if (isPlaying) {
-        widget.pause();
-        playBtn.textContent = '▶';
-        cover.classList.remove('playing');
-        isPlaying = false;
-      } else {
-        widget.play();
-        playBtn.textContent = '⏸';
-        cover.classList.add('playing');
-        isPlaying = true;
-      }
-    }
-
-    // Siguiente canción
+    // Siguiente
     function nextSong() {
       currentSongIndex = (currentSongIndex + 1) % songs.length;
       loadSong(currentSongIndex);
-      setTimeout(() => {
-        const widget = window.SC.Widget(soundcloudContainer.querySelector('iframe'));
-        if (widget) {
-          widget.play();
-          playBtn.textContent = '⏸';
-          cover.classList.add('playing');
-          isPlaying = true;
-        }
-      }, 300);
     }
 
-    // Canción anterior
+    // Anterior
     function prevSong() {
       currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
       loadSong(currentSongIndex);
-      setTimeout(() => {
-        const widget = window.SC.Widget(soundcloudContainer.querySelector('iframe'));
-        if (widget) {
-          widget.play();
-          playBtn.textContent = '⏸';
-          cover.classList.add('playing');
-          isPlaying = true;
-        }
-      }, 300);
     }
 
-    // Actualizar UI
+    // Toggle animación en cover
+    function togglePlayAnimation() {
+      cover.classList.toggle('playing');
+    }
+
+    // Actualizar UI de playlist
     function updatePlaylistUI() {
       document.querySelectorAll('.song-item').forEach((item, index) => {
         item.classList.toggle('active', index === currentSongIndex);
       });
     }
 
-    // Renderizar playlist
+    // Renderizar lista
     function renderPlaylist() {
       const playlistItems = document.getElementById('playlistItems');
       playlistItems.innerHTML = songs.map((song, index) => `
-        <div class="song-item" onclick="loadSongAndPlay(${index})">
+        <div class="song-item ${index === 0 ? 'active' : ''}" onclick="selectSong(${index})">
           <span class="song-item-number">${index + 1}</span>
           <div class="song-item-info">
             <div class="song-item-title">${song.title}</div>
@@ -494,35 +417,15 @@
       `).join('');
     }
 
-    // Cargar y reproducir
-    function loadSongAndPlay(index) {
+    // Seleccionar canción
+    function selectSong(index) {
       loadSong(index);
-      setTimeout(() => {
-        const widget = window.SC.Widget(soundcloudContainer.querySelector('iframe'));
-        if (widget) {
-          widget.play();
-          playBtn.textContent = '⏸';
-          cover.classList.add('playing');
-          isPlaying = true;
-        }
-      }, 300);
     }
 
     // Event listeners
-    playBtn.addEventListener('click', togglePlay);
+    playBtn.addEventListener('click', togglePlayAnimation);
     nextBtn.addEventListener('click', nextSong);
     prevBtn.addEventListener('click', prevSong);
-
-    // Cargar script de SoundCloud
-    const scScript = document.createElement('script');
-    scScript.src = 'https://soundcloud.com/player/api.js#onload=onSoundCloudScriptLoad';
-    scScript.async = true;
-    document.body.appendChild(scScript);
-
-    window.onSoundCloudScriptLoad = function() {
-      renderPlaylist();
-      loadSong(0);
-    };
 
     // Cargar nav
     fetch('nav.html')
@@ -532,13 +435,9 @@
       })
       .catch(error => console.error('Error cargando nav:', error));
 
-    // Inicializar si SoundCloud ya está cargado
-    setTimeout(() => {
-      if (window.SC) {
-        renderPlaylist();
-        loadSong(0);
-      }
-    }, 800);
+    // Inicializar
+    renderPlaylist();
+    loadSong(0);
   </script>
 </body>
 </html>
