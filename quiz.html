@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz - Van & Moon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="cssP.css">
+  <style>
+    /* Estilos específicos del quiz */
+    .quiz-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 140px);
+      gap: var(--gap-xl);
+      padding-bottom: var(--gap-xl);
+    }
+
+    .quiz-header {
+      text-align: center;
+      animation: fadeInDown 0.8s ease forwards;
+    }
+
+    .quiz-header h1 {
+      color: white;
+      margin-bottom: var(--gap-sm);
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .quiz-header p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.05rem;
+    }
+
+    /* Pantalla de selección */
+    .selection-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--gap-xl);
+      width: 100%;
+      max-width: 600px;
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .selection-text {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.1rem;
+      text-align: center;
+    }
+
+    .person-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--gap-lg);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .person-btn {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border: 2px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: var(--gap-lg);
+      color: white;
+      cursor: pointer;
+      font-size: 1.2rem;
+      font-weight: 600;
+      transition: all var(--transition-smooth);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--gap-md);
+    }
+
+    .person-btn:hover {
+      background: rgba(236, 72, 153, 0.2);
+      border-color: rgba(236, 72, 153, 0.5);
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .person-emoji {
+      font-size: 3rem;
+    }
+
+    /* Pantalla del quiz */
+    .quiz-screen {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      max-width: 700px;
+      gap: var(--gap-lg);
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .quiz-screen.active {
+      display: flex;
+    }
+
+    /* Progreso */
+    .quiz-progress {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--gap-lg);
+    }
+
+    .progress-text {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.95rem;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      margin: 0 var(--gap-md);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ec4899, #a855f7);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    /* Pregunta */
+    .question-container {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: var(--gap-lg);
+      box-shadow: var(--shadow-md);
+    }
+
+    .question-number {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: var(--gap-md);
+    }
+
+    .question-text {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: white;
+      margin-bottom: var(--gap-lg);
+      line-height: 1.6;
+    }
+
+    /* Opciones */
+    .options {
+      display: grid;
+      gap: var(--gap-md);
+    }
+
+    .option {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(236, 72, 153, 0.2);
+      border-radius: var(--radius-md);
+      padding: var(--gap-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      color: white;
+      text-align: left;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .option:hover {
+      background: rgba(236, 72, 153, 0.15);
+      border-color: rgba(236, 72, 153, 0.4);
+      transform: translateX(8px);
+    }
+
+    .option.selected {
+      background: rgba(236, 72, 153, 0.3);
+      border-color: rgba(236, 72, 153, 0.6);
+    }
+
+    .option.correct {
+      background: rgba(34, 197, 94, 0.3);
+      border-color: rgba(34, 197, 94, 0.6);
+    }
+
+    .option.incorrect {
+      background: rgba(239, 68, 68, 0.3);
+      border-color: rgba(239, 68, 68, 0.6);
+    }
+
+    /* Botones de navegación */
+    .quiz-navigation {
+      display: flex;
+      gap: var(--gap-md);
+      justify-content: center;
+      margin-top: var(--gap-lg);
+    }
+
+    .quiz-btn {
+      background: none;
+      border: 2px solid rgba(236, 72, 153, 0.4);
+      color: rgba(255, 255, 255, 0.8);
+      padding: var(--gap-sm) var(--gap-lg);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all var(--transition-fast);
+      font-size: 1rem;
+    }
+
+    .quiz-btn:hover {
+      background: rgba(236, 72, 153, 0.2);
+      border-color: rgba(236, 72, 153, 0.6);
+      color: white;
+    }
+
+    .quiz-btn.primary {
+      background: linear-gradient(135deg, #ec4899, #a855f7);
+      border: none;
+    }
+
+    .quiz-btn.primary:hover {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .quiz-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Pantalla de resultados */
+    .results-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--gap-lg);
+      width: 100%;
+      max-width: 700px;
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .results-screen.active {
+      display: flex;
+    }
+
+    .results-score {
+      text-align: center;
+      margin-bottom: var(--gap-lg);
+    }
+
+    .score-number {
+      font-size: 3.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ec4899, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .score-text {
+      font-size: 1.2rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-top: var(--gap-sm);
+    }
+
+    .results-list {
+      width: 100%;
+      display: grid;
+      gap: var(--gap-md);
+    }
+
+    .result-item {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: var(--gap-md);
+      border-left: 4px solid;
+    }
+
+    .result-item.correct {
+      border-left-color: #22c55e;
+    }
+
+    .result-item.incorrect {
+      border-left-color: #ef4444;
+    }
+
+    .result-question {
+      font-weight: 600;
+      color: white;
+      margin-bottom: var(--gap-sm);
+    }
+
+    .result-your-answer {
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: var(--gap-xs);
+    }
+
+    .result-correct-answer {
+      font-size: 0.95rem;
+      color: #22c55e;
+      font-weight: 500;
+    }
+
+    .result-status {
+      font-size: 0.9rem;
+      margin-bottom: var(--gap-xs);
+    }
+
+    .result-status.correct {
+      color: #22c55e;
+    }
+
+    .result-status.incorrect {
+      color: #ef4444;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .quiz-container {
+        padding: var(--gap-md);
+      }
+
+      .person-buttons {
+        grid-template-columns: 1fr;
+        max-width: 100%;
+      }
+
+      .question-text {
+        font-size: 1.1rem;
+      }
+
+      .score-number {
+        font-size: 2.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .quiz-header h1 {
+        font-size: 1.5rem;
+      }
+
+      .question-text {
+        font-size: 1rem;
+      }
+
+      .option {
+        padding: var(--gap-sm);
+        font-size: 0.9rem;
+      }
+
+      .score-number {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Nav incluida aquí -->
+  <div id="navbar"></div>
+
+  <div class="container">
+    <div class="quiz-container">
+      <div class="quiz-header">
+        <h1>❓ Quiz de Pareja</h1>
+        <p>¿Cuánto nos conocemos?</p>
+      </div>
+
+      <!-- Pantalla de selección -->
+      <div class="selection-screen" id="selectionScreen">
+        <p class="selection-text">¿De quién quieres responder las preguntas?</p>
+        <div class="person-buttons">
+          <button class="person-btn" onclick="startQuiz('van')">
+            <span class="person-emoji">🧑</span>
+            <span>Preguntas para Van</span>
+          </button>
+          <button class="person-btn" onclick="startQuiz('moon')">
+            <span class="person-emoji">👩</span>
+            <span>Preguntas para Moon</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pantalla del quiz -->
+      <div class="quiz-screen" id="quizScreen">
+        <div class="quiz-progress">
+          <span class="progress-text" id="progressText">1/10</span>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+
+        <div class="question-container">
+          <div class="question-number" id="questionNumber">Pregunta 1</div>
+          <div class="question-text" id="questionText">¿Cuál es mi color favorito?</div>
+          <div class="options" id="optionsContainer"></div>
+        </div>
+
+        <div class="quiz-navigation">
+          <button class="quiz-btn" id="prevBtn" onclick="previousQuestion()" disabled>← Anterior</button>
+          <button class="quiz-btn primary" id="nextBtn" onclick="nextQuestion()" disabled>Siguiente →</button>
+        </div>
+      </div>
+
+      <!-- Pantalla de resultados -->
+      <div class="results-screen" id="resultsScreen">
+        <div class="results-score">
+          <div class="score-number" id="scoreNumber">0/10</div>
+          <div class="score-text" id="scoreText">¡Excelente trabajo!</div>
+        </div>
+
+        <div class="results-list" id="resultsList"></div>
+
+        <button class="quiz-btn primary" onclick="goBackToSelection()" style="margin-top: var(--gap-lg);">
+          Hacer otro quiz
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // BANCO DE PREGUNTAS - FÁCIL DE AGREGAR MÁS
+    // ============================================
+
+    const questionBanks = {
+      // Preguntas para Van (EDITA AQUÍ)
+      van: [
+        {
+          question: "¿Cuál es mi color favorito?",
+          options: ["Azul", "Rojo", "Verde", "Negro"],
+          correct: 0
+        },
+        {
+          question: "¿Cuál es mi comida favorita?",
+          options: ["Pizza", "Tacos", "Sushi", "Hamburguesa"],
+          correct: 1
+        },
+        {
+          question: "¿Cuándo es mi cumpleaños?",
+          options: ["Enero 15", "Marzo 20", "Junio 10", "Diciembre 25"],
+          correct: 2
+        },
+        {
+          question: "¿Cuál es mi película favorita?",
+          options: ["Inception", "The Matrix", "Interstellar", "Dark Knight"],
+          correct: 0
+        },
+        {
+          question: "¿Cuál es mi serie favorita?",
+          options: ["Breaking Bad", "Game of Thrones", "Stranger Things", "The Office"],
+          correct: 2
+        },
+        {
+          question: "¿A qué hora me gusta despertarme?",
+          options: ["5:00 AM", "7:00 AM", "9:00 AM", "11:00 AM"],
+          correct: 1
+        },
+        {
+          question: "¿Cuál es mi deporte favorito?",
+          options: ["Fútbol", "Baloncesto", "Tenis", "Natación"],
+          correct: 0
+        },
+        {
+          question: "¿Cuál es mi lugar favorito?",
+          options: ["Montaña", "Playa", "Ciudad", "Bosque"],
+          correct: 3
+        },
+        {
+          question: "¿Cuál es mi libro favorito?",
+          options: ["Don Quijote", "1984", "El Principito", "Harry Potter"],
+          correct: 1
+        },
+        {
+          question: "¿Cuál es mi hobby?",
+          options: ["Dibujo", "Música", "Videojuegos", "Lectura"],
+          correct: 2
+        },
+        // Agrega más preguntas aquí en el mismo formato
+        {
+          question: "¿Cuál es mi sueño?",
+          options: ["Viajar el mundo", "Tener una familia", "Ser millonario", "Vivir en paz"],
+          correct: 0
+        },
+        {
+          question: "¿Cuánto tiempo llevamos juntos?",
+          options: ["1 año", "2 años", "3 años", "5 años"],
+          correct: 1
+        },
+        {
+          question: "¿Cuál es mi canción favorita?",
+          options: ["Our Song", "Sunroof", "Enchanted", "Love Story"],
+          correct: 0
+        },
+        {
+          question: "¿Cuál es mi animal favorito?",
+          options: ["Perro", "Gato", "Pájaro", "Delfín"],
+          correct: 1
+        },
+        {
+          question: "¿Cuál es mi bebida favorita?",
+          options: ["Café", "Té", "Jugo", "Refresco"],
+          correct: 0
+        }
+      ],
+
+      // Preguntas para Moon (EDITA AQUÍ)
+      moon: [
+        {
+          question: "¿Cuál es mi color favorito?",
+          options: ["Rosa", "Púrpura", "Azul", "Dorado"],
+          correct: 1
+        },
+        {
+          question: "¿Cuál es mi comida favorita?",
+          options: ["Pasta", "Arroz", "Ensalada", "Postre"],
+          correct: 3
+        },
+        {
+          question: "¿Cuándo es mi cumpleaños?",
+          options: ["Febrero 14", "Abril 22", "Julio 7", "Octubre 31"],
+          correct: 1
+        },
+        {
+          question: "¿Cuál es mi película favorita?",
+          options: ["Titanic", "La Bella y la Bestia", "Crepúsculo", "Pride and Prejudice"],
+          correct: 0
+        },
+        {
+          question: "¿Cuál es mi serie favorita?",
+          options: ["Gilmore Girls", "Friends", "Grey's Anatomy", "Scandal"],
+          correct: 2
+        },
+        {
+          question: "¿A qué hora me gusta despertarme?",
+          options: ["6:00 AM", "8:00 AM", "10:00 AM", "12:00 PM"],
+          correct: 2
+        },
+        {
+          question: "¿Cuál es mi actividad favorita?",
+          options: ["Correr", "Yoga", "Pilates", "Danza"],
+          correct: 3
+        },
+        {
+          question: "¿Cuál es mi tipo de viaje favorito?",
+          options: ["Aventura", "Relajación", "Cultural", "Gastronomía"],
+          correct: 1
+        },
+        {
+          question: "¿Cuál es mi autor favorito?",
+          options: ["Jane Austen", "Colleen Hoover", "Taylor Jenkins Reid", "Emily Henry"],
+          correct: 1
+        },
+        {
+          question: "¿Cuál es mi estación del año favorita?",
+          options: ["Primavera", "Verano", "Otoño", "Invierno"],
+          correct: 0
+        },
+        // Agrega más preguntas aquí
+        {
+          question: "¿Qué me hace más feliz?",
+          options: ["Éxito", "Amor", "Familia", "Aventura"],
+          correct: 2
+        },
+        {
+          question: "¿Cuál es mi perfume favorito?",
+          options: ["Floral", "Frutal", "Fresco", "Almízcara"],
+          correct: 0
+        },
+        {
+          question: "¿Cuál es mi postre favorito?",
+          options: ["Chocolate", "Fresas", "Helado", "Pastel"],
+          correct: 2
+        },
+        {
+          question: "¿Cuál es mi tipo de música favorita?",
+          options: ["Pop", "Rock", "Indie", "Soul"],
+          correct: 3
+        },
+        {
+          question: "¿Cuál es mi mayor fortaleza?",
+          options: ["Inteligencia", "Bondad", "Belleza", "Humor"],
+          correct: 1
+        }
+      ]
+    };
+
+    // ============================================
+    // VARIABLES DEL QUIZ
+    // ============================================
+
+    let currentPerson = null;
+    let currentQuestionIndex = 0;
+    let selectedQuestions = [];
+    let userAnswers = [];
+    const QUESTIONS_PER_QUIZ = 10; // CAMBIA AQUÍ para más/menos preguntas
+
+    // ============================================
+    // FUNCIONES DEL QUIZ
+    // ============================================
+
+    // Iniciar quiz
+    function startQuiz(person) {
+      currentPerson = person;
+      selectedQuestions = selectRandomQuestions(questionBanks[person], QUESTIONS_PER_QUIZ);
+      userAnswers = new Array(selectedQuestions.length).fill(null);
+      currentQuestionIndex = 0;
+
+      document.getElementById('selectionScreen').style.display = 'none';
+      document.getElementById('quizScreen').classList.add('active');
+      document.getElementById('resultsScreen').classList.remove('active');
+
+      showQuestion();
+    }
+
+    // Seleccionar preguntas aleatorias
+    function selectRandomQuestions(questions, count) {
+      const shuffled = [...questions].sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, Math.min(count, questions.length));
+    }
+
+    // Mostrar pregunta
+    function showQuestion() {
+      const question = selectedQuestions[currentQuestionIndex];
+      
+      document.getElementById('questionNumber').textContent = `Pregunta ${currentQuestionIndex + 1}`;
+      document.getElementById('questionText').textContent = question.question;
+      document.getElementById('progressText').textContent = `${currentQuestionIndex + 1}/${selectedQuestions.length}`;
+      
+      const progressPercent = ((currentQuestionIndex + 1) / selectedQuestions.length) * 100;
+      document.getElementById('progressFill').style.width = progressPercent + '%';
+
+      // Mostrar opciones
+      const optionsContainer = document.getElementById('optionsContainer');
+      optionsContainer.innerHTML = question.options.map((option, index) => `
+        <button class="option ${userAnswers[currentQuestionIndex] === index ? 'selected' : ''}" 
+                onclick="selectOption(${index})">
+          ${option}
+        </button>
+      `).join('');
+
+      // Actualizar botones
+      document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+      document.getElementById('nextBtn').disabled = userAnswers[currentQuestionIndex] === null;
+
+      if (currentQuestionIndex === selectedQuestions.length - 1) {
+        document.getElementById('nextBtn').textContent = 'Ver Resultados';
+      } else {
+        document.getElementById('nextBtn').textContent = 'Siguiente →';
+      }
+    }
+
+    // Seleccionar opción
+    function selectOption(index) {
+      userAnswers[currentQuestionIndex] = index;
+      document.querySelectorAll('.option').forEach((opt, i) => {
+        opt.classList.toggle('selected', i === index);
+      });
+      document.getElementById('nextBtn').disabled = false;
+    }
+
+    // Siguiente pregunta
+    function nextQuestion() {
+      if (currentQuestionIndex === selectedQuestions.length - 1) {
+        showResults();
+      } else {
+        currentQuestionIndex++;
+        showQuestion();
+      }
+    }
+
+    // Pregunta anterior
+    function previousQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        showQuestion();
+      }
+    }
+
+    // Mostrar resultados
+    function showResults() {
+      let correctCount = 0;
+      const resultsList = [];
+
+      selectedQuestions.forEach((question, index) => {
+        const isCorrect = userAnswers[index] === question.correct;
+        if (isCorrect) correctCount++;
+
+        resultsList.push({
+          question: question.question,
+          userAnswer: question.options[userAnswers[index]],
+          correctAnswer: question.options[question.correct],
+          isCorrect: isCorrect
+        });
+      });
+
+      // Actualizar pantalla de resultados
+      document.getElementById('scoreNumber').textContent = `${correctCount}/${selectedQuestions.length}`;
+      document.getElementById('scoreText').textContent = getResultMessage(correctCount, selectedQuestions.length);
+
+      const resultsListHTML = resultsList.map(result => `
+        <div class="result-item ${result.isCorrect ? 'correct' : 'incorrect'}">
+          <div class="result-status ${result.isCorrect ? 'correct' : 'incorrect'}">
+            ${result.isCorrect ? '✅ Correcto' : '❌ Incorrecto'}
+          </div>
+          <div class="result-question">${result.question}</div>
+          <div class="result-your-answer">Tu respuesta: ${result.userAnswer}</div>
+          ${!result.isCorrect ? `<div class="result-correct-answer">Respuesta correcta: ${result.correctAnswer}</div>` : ''}
+        </div>
+      `).join('');
+
+      document.getElementById('resultsList').innerHTML = resultsListHTML;
+
+      // Mostrar pantalla de resultados
+      document.getElementById('quizScreen').classList.remove('active');
+      document.getElementById('resultsScreen').classList.add('active');
+    }
+
+    // Mensaje según el resultado
+    function getResultMessage(correct, total) {
+      const percentage = (correct / total) * 100;
+      
+      if (percentage === 100) return '¡Perfecto! ¡Me conoces completamente!';
+      if (percentage >= 80) return '¡Excelente! ¡Me conoces muy bien!';
+      if (percentage >= 60) return '¡Muy bien! ¡Conoces bastante!';
+      if (percentage >= 40) return 'Bien, pero hay cosas que mejorar';
+      return 'Necesitamos pasar más tiempo juntos 😄';
+    }
+
+    // Volver al inicio
+    function goBackToSelection() {
+      document.getElementById('selectionScreen').style.display = 'flex';
+      document.getElementById('quizScreen').classList.remove('active');
+      document.getElementById('resultsScreen').classList.remove('active');
+      currentQuestionIndex = 0;
+    }
+
+    // Cargar nav
+    fetch('nav.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('navbar').innerHTML = data;
+      })
+      .catch(error => console.error('Error cargando nav:', error));
+  </script>
+</body>
+</html>
