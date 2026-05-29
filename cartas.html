@@ -270,14 +270,11 @@
   <script>
     // Función para abrir/cerrar cartas
     function toggleCarta(element) {
-      // Cerrar otras cartas
       document.querySelectorAll('.carta').forEach(carta => {
         if (carta !== element) {
           carta.classList.remove('active');
         }
       });
-
-      // Toggle esta carta
       element.classList.toggle('active');
     }
 
